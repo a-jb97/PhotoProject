@@ -9,38 +9,79 @@ import UIKit
 import SnapKit
 
 class TopicViewController: BaseViewController {
+    let titleLabel = {
+        let label = UILabel()
+        
+        label.text = "OUR TOPIC"
+        label.font = .systemFont(ofSize: 35, weight: UIFont.Weight(rawValue: 0.5))
+        
+        return label
+    }()
+    
     lazy var topicTableView = {
         let tableView = UITableView()
+        let screenHeight = UIScreen.main.bounds.height
         
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.rowHeight = screenHeight / 3.6
+        tableView.separatorStyle = .none
+        
+        tableView.register(TopicTableViewCell.self, forCellReuseIdentifier: TopicTableViewCell.identifier)
         
         return tableView
+    }()
+    
+    let randomTopics = {
+        let shuffledTopics = TopicID.allCases.shuffled()
+        var pickTopics: [TopicID] = []
+        
+        for topic in shuffledTopics {
+            pickTopics.append(topic)
+        }
+        
+        return pickTopics
     }()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        navigationItem.title = "OUR TOPIC"
-        navigationController?.navigationBar.prefersLargeTitles = true
-        navigationItem.largeTitleDisplayMode = .always
     }
     
     override func configureHierarchy() {
-        
+        view.addSubview(titleLabel)
+        view.addSubview(topicTableView)
     }
     
     override func configureLayout() {
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
+        }
         
+        topicTableView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom)
+            make.horizontalEdges.equalTo(view)
+            make.bottom.equalTo(view)
+        }
     }
 }
 
 extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 3
+    }
+    
+    func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        return randomTopics[section].rawValue
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        <#code#>
+        return 1
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        <#code#>
+        let cell = tableView.dequeueReusableCell(withIdentifier: TopicTableViewCell.identifier, for: indexPath) as! TopicTableViewCell
+        
+        return cell
     }
 }
