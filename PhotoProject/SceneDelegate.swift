@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         let tabBarController = UITabBarController()
         let topicVC = UINavigationController(rootViewController: TopicViewController())
-        let videoVC = UINavigationController(rootViewController: VideoViewController())
+        let videoVC = UINavigationController(rootViewController: DetailViewController())
         let searchPhotoVC = UINavigationController(rootViewController: SearchPhotoViewController())
         let likeVC = UINavigationController(rootViewController: LikeViewController())
         
