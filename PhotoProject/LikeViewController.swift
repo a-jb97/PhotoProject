@@ -7,7 +7,7 @@
 
 import UIKit
 
-class LikeViewController: UIViewController {
+class LikeViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,5 +15,11 @@ class LikeViewController: UIViewController {
         
     }
     
+    override func configureHierarchy() {
+        
+    }
     
+    override func configureLayout() {
+        
+    }
 }

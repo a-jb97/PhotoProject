@@ -6,14 +6,24 @@
 //
 
 import UIKit
+import SnapKit
 
-class TopicViewController: UIViewController {
+class TopicViewController: BaseViewController {
+    
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
+        navigationItem.title = "OUR TOPIC"
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationItem.largeTitleDisplayMode = .always
+    }
+    
+    override func configureHierarchy() {
         
     }
     
-    
+    override func configureLayout() {
+        
+    }
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class VideoViewController: UIViewController {
+class VideoViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,5 +15,11 @@ class VideoViewController: UIViewController {
         
     }
     
+    override func configureHierarchy() {
+        
+    }
     
+    override func configureLayout() {
+        
+    }
 }

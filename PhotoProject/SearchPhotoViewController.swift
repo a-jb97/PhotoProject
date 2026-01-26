@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SearchPhotoViewController: UIViewController {
+class SearchPhotoViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -15,4 +15,11 @@ class SearchPhotoViewController: UIViewController {
         
     }
     
+    override func configureHierarchy() {
+        
+    }
+    
+    override func configureLayout() {
+        
+    }
 }
