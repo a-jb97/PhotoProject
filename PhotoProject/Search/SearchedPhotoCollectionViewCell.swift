@@ -12,13 +12,14 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
     let photoImageView = {
         let imageView = UIImageView()
         
+        imageView.clipsToBounds = true
         imageView.contentMode = .scaleAspectFill
         
         imageView.backgroundColor = .systemBrown
         
         return imageView
     }()
-    let starButton = UIButton.starButton
+    let starButton = StarButton()
     
     override func configureHierarchy() {
         [photoImageView, starButton].forEach { contentView.addSubview($0) }
@@ -32,6 +33,7 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
         starButton.snp.makeConstraints { make in
             make.leading.equalTo(photoImageView).offset(8)
             make.bottom.equalTo(photoImageView.snp.bottom).inset(8)
+            make.height.equalTo(28)
         }
     }
 }
