@@ -6,7 +6,32 @@
 //
 
 import UIKit
+import SnapKit
 
-class SearchedPhotoCollectionViewCell: UICollectionViewCell {
+class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
+    let photoImageView = {
+        let imageView = UIImageView()
+        
+        imageView.contentMode = .scaleAspectFill
+        
+        imageView.backgroundColor = .systemBrown
+        
+        return imageView
+    }()
+    let starButton = UIButton.starButton
     
+    override func configureHierarchy() {
+        [photoImageView, starButton].forEach { contentView.addSubview($0) }
+    }
+    
+    override func configureLayout() {
+        photoImageView.snp.makeConstraints { make in
+            make.edges.equalTo(contentView)
+        }
+        
+        starButton.snp.makeConstraints { make in
+            make.leading.equalTo(photoImageView).offset(8)
+            make.bottom.equalTo(photoImageView.snp.bottom).inset(8)
+        }
+    }
 }

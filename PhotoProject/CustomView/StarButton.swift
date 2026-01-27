@@ -22,5 +22,5 @@ extension UIButton {
         button.backgroundColor = .darkGray
         
         return button
-    }
+    }()
 }
