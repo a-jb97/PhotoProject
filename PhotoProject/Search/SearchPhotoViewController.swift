@@ -101,13 +101,50 @@ class SearchPhotoViewController: BaseViewController {
         return layout
     }()
     
-    var searchedPhotos: Search = Search(results: [])
+    var total = 0
+    var searchedPhotos: [SearchDetail] = []
+    var keyWord = ""
+    var sortToggle = false
+    var page = 1
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         searchedPhotoCollectionView.isHidden = true
         statusLabel.isHidden = false
+        
+        sortButton.addTarget(self, action: #selector(toggleSortButton), for: .touchUpInside)
+    }
+    
+    @objc private func toggleSortButton() {
+        sortToggle.toggle()
+        
+        if sortToggle == false {
+            sortButton.setTitle("관련순", for: .normal)
+            self.page = 1
+            
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+                self.searchedPhotos = value.results
+                self.total = value.total
+                self.searchedPhotoCollectionView.reloadData()
+                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            } failure: { error in
+                print(error.description)
+            }
+            
+        } else {
+            sortButton.setTitle("최신순", for: .normal)
+            self.page = 1
+            
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "latest", color: "blue"), type: Search.self) { value in
+                self.searchedPhotos = value.results
+                self.total = value.total
+                self.searchedPhotoCollectionView.reloadData()
+                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            } failure: { error in
+                print(error.description)
+            }
+        }
     }
     
     override func configureHierarchy() {
@@ -146,10 +183,14 @@ class SearchPhotoViewController: BaseViewController {
 
 extension SearchPhotoViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: "1", orderBy: "latest", color: "blue"), type: Search.self) { value in
-            self.searchedPhotos = value
+        self.page = 1
+        
+        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+            self.searchedPhotos = value.results
+            self.total = value.total
             
-            if self.searchedPhotos.results.count != 0 {
+            if self.searchedPhotos.count != 0 {
+                self.keyWord = searchBar.text!
                 self.statusLabel.isHidden = true
                 self.searchedPhotoCollectionView.isHidden = false
                 
@@ -170,7 +211,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         if collectionView == filterCollectionView {
             return 11
         } else {
-            return searchedPhotos.results.count
+            return searchedPhotos.count
         }
     }
     
@@ -182,10 +223,24 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         } else {
             let item = collectionView.dequeueReusableCell(withReuseIdentifier: SearchedPhotoCollectionViewCell.identifier, for: indexPath) as! SearchedPhotoCollectionViewCell
             
-            item.photoImageView.kf.setImage(with: URL(string: searchedPhotos.results[indexPath.item].urls.small))
-            item.starButton.setTitle(" \(String(searchedPhotos.results[indexPath.item].likes.formatted()))", for: .normal)
+            item.photoImageView.kf.setImage(with: URL(string: searchedPhotos[indexPath.item].urls.small))
+            item.starButton.setTitle(" \(String(searchedPhotos[indexPath.item].likes.formatted()))", for: .normal)
             
             return item
+        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
+            self.page += 1
+            
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+                self.searchedPhotos.append(contentsOf: value.results)
+                self.searchedPhotoCollectionView.reloadData()
+            } failure: { error in
+                print(error.description)
+            }
+
         }
     }
 }
