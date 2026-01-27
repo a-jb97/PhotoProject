@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 enum NetworkRouter {
-    case topic(topicID: String)
+    case topic(topicID: TopicID)
     case search(query: String, page: String, orderBy: String, color: String)
     case statistics(photoID: String)
     
@@ -20,8 +20,8 @@ enum NetworkRouter {
     var endPoint: URL {
         switch self {
         case .topic(topicID: let id):
-            return URL(string: NetworkRouter.baseURL + "topics/\(id)/photos?page=1")!
-        case .search(query: let query, page: let page, orderBy: let orderBy, color: let color):
+            return URL(string: NetworkRouter.baseURL + "topics/\(id.rawValue)/photos?page=1")!
+        case .search:
             return URL(string: NetworkRouter.baseURL + "search/photos?")!
         case .statistics(photoID: let id):
             return URL(string: NetworkRouter.baseURL + "photos/\(id)/statistics?")!
@@ -37,5 +37,9 @@ enum NetworkRouter {
         case .statistics(photoID: _):
             return ["" : ""]
         }
+    }
+    
+    var headers: HTTPHeaders {
+        return ["Authorization" : APIKey.key]
     }
 }

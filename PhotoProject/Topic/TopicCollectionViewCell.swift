@@ -20,7 +20,7 @@ class TopicCollectionViewCell: BaseCollectionViewCell {
         
         return imageView
     }()
-    let starButton = UIButton.starButton
+    let starButton = StarButton()
     
     override func configureHierarchy() {
         contentView.addSubview(topicImageView)

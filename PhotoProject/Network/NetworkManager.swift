@@ -46,7 +46,7 @@ final class NetworkManager {
     private init() {  }
     
     func callRequest<T: Decodable>(api: NetworkRouter, type: T.Type, success: @escaping (T) -> Void, failure: @escaping (NetworkError) -> Void) {
-        AF.request(api.endPoint, method: .get, parameters: api.parameter).validate(statusCode: 200..<300).responseDecodable(of: T.self) { response in
+        AF.request(api.endPoint, method: .get, parameters: api.parameter, headers: api.headers).validate(statusCode: 200..<300).responseDecodable(of: T.self) { response in
             guard let statusCode = response.response?.statusCode else {
                 failure(.noResponse)
                 
@@ -57,7 +57,7 @@ final class NetworkManager {
             case .success(let value):
                 success(value)
                 
-            case .failure(_):
+            case .failure(let error):
                 let networkError: NetworkError
                 
                 switch statusCode {
@@ -76,6 +76,8 @@ final class NetworkManager {
                 }
                 
                 failure(networkError)
+                
+                print(error)
             }
         }
     }

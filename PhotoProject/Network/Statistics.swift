@@ -9,13 +9,18 @@ import Foundation
 
 struct Statistics: Decodable {
     let id: String
-    let downloads: [DownloadsDetail]
-    let views: [ViewsDetail]
+    let downloads: DownloadsDetail
+    let views: ViewsDetail
 }
 
 struct DownloadsDetail: Decodable {
     let total: Int
-    let historical: [HistorycalDetail]
+    let historical: HistorycalDetail
+}
+
+struct ViewsDetail: Decodable {
+    let total: Int
+    let historical: HistorycalDetail
 }
 
 struct HistorycalDetail: Decodable {
@@ -25,9 +30,4 @@ struct HistorycalDetail: Decodable {
 struct ValuesDetail: Decodable {
     let date: String
     let value: Int
-}
-
-struct ViewsDetail: Decodable {
-    let total: Int
-    let historical: [HistorycalDetail]
 }

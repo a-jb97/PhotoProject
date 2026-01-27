@@ -8,15 +8,11 @@
 import Foundation
 
 struct Topic: Decodable {
-    let topicList: [TopicDetail]
-}
-
-struct TopicDetail: Decodable {
     let id: String
     let created_at: String
     let width: Int
     let height: Int
-    let urls: [UrlsDetail]
+    let urls: UrlsDetail
     let likes: Int
-    let user: [UserDetail]
+    let user: UserDetail
 }

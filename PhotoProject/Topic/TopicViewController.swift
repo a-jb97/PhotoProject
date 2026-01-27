@@ -45,6 +45,8 @@ class TopicViewController: BaseViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
     }
     
     override func configureHierarchy() {
@@ -72,7 +74,7 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        return randomTopics[section].rawValue
+        return randomTopics[section].description
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -16,7 +16,7 @@ struct SearchDetail: Decodable {
     let created_at: String
     let width: Int
     let height: Int
-    let urls: [UrlsDetail]
+    let urls: UrlsDetail
     let likes: Int
-    let user: [UserDetail]
+    let user: UserDetail
 }

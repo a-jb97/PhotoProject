@@ -14,7 +14,7 @@ struct UrlsDetail: Decodable {
 
 struct UserDetail: Decodable {
     let name: String
-    let profile_image: [ProfileImageDetail]
+    let profile_image: ProfileImageDetail
 }
 
 struct ProfileImageDetail: Decodable {
