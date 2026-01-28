@@ -101,6 +101,44 @@ class SearchPhotoViewController: BaseViewController {
         return layout
     }()
     
+    enum ColorFilter: String, CaseIterable {
+        case black = "블랙"
+        case white = "화이트"
+        case yellow = "옐로우"
+        case orange = "오렌지"
+        case red = "레드"
+        case purple = "퍼플"
+        case magenta = "마젠타"
+        case green = "그린"
+        case teal = "틸"
+        case blue = "블루"
+        
+        var uiColor: UIColor {
+            switch self {
+            case .black:
+                    .black
+            case .white:
+                    .white
+            case .yellow:
+                    .yellow
+            case .orange:
+                    .orange
+            case .red:
+                    .red
+            case .purple:
+                    .purple
+            case .magenta:
+                    .magenta
+            case .green:
+                    .green
+            case .teal:
+                    .systemTeal
+            case .blue:
+                    .systemBlue
+            }
+        }
+    }
+    
     var total = 0
     var searchedPhotos: [SearchDetail] = []
     var keyWord = ""
@@ -213,7 +251,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
 extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if collectionView == filterCollectionView {
-            return 11
+            return ColorFilter.allCases.count
         } else {
             return searchedPhotos.count
         }
@@ -222,6 +260,9 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         if collectionView == filterCollectionView {
             let item = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCollectionViewCell.identifier, for: indexPath) as! FilterCollectionViewCell
+            
+            item.colorImageView.backgroundColor = ColorFilter.allCases[indexPath.item].uiColor
+            item.colorLabel.text = ColorFilter.allCases[indexPath.item].rawValue
             
             return item
         } else {
@@ -245,7 +286,6 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
                 } failure: { error in
                     print(error.description)
                 }
-                
             }
         }
         

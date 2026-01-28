@@ -43,12 +43,6 @@ class TopicViewController: BaseViewController {
         
         return pickTopics
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        
-    }
     
     override func configureHierarchy() {
         view.addSubview(titleLabel)

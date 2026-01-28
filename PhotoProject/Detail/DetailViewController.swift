@@ -109,10 +109,6 @@ class DetailViewController: BaseViewController {
         
         return label
     }()
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    }
     
     override func configureHierarchy() {
         [profileImageView, userNameLabel, dateLabel, heartButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { view.addSubview($0) }
