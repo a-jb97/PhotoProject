@@ -23,7 +23,6 @@ class StarButton: UIButton {
         layer.cornerRadius = 14
         contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         setImage(UIImage(systemName: "star.fill"), for: .normal)
-        setTitle("123,456", for: .normal)
         titleLabel?.font = .systemFont(ofSize: 12)
         tintColor = .systemYellow
         setTitleColor(.white, for: .normal)

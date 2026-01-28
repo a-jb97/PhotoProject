@@ -14,7 +14,6 @@ class FilterCollectionViewCell: BaseCollectionViewCell {
         
         imageView.backgroundColor = .black
         imageView.clipsToBounds = true
-        imageView.layer.cornerRadius = 10
         
         return imageView
     }()
@@ -32,18 +31,20 @@ class FilterCollectionViewCell: BaseCollectionViewCell {
     
     override func configureLayout() {
         colorImageView.snp.makeConstraints { make in
-            make.verticalEdges.equalTo(contentView).offset(4)
-            make.leading.equalTo(contentView).offset(4)
-            make.height.width.equalTo(20)
+            make.verticalEdges.equalTo(contentView).inset(3)
+            make.leading.equalTo(contentView).offset(2)
+            make.height.width.equalTo(contentView.frame.height * 0.8)
         }
         
         colorLabel.snp.makeConstraints { make in
             make.centerY.equalTo(colorImageView)
-            make.leading.equalTo(colorImageView.snp.trailing).offset(4)
+            make.leading.equalTo(colorImageView.snp.trailing).offset(8)
         }
     }
     
     override func configureView() {
         contentView.backgroundColor = .lightGray
+        contentView.layer.cornerRadius = contentView.frame.height / 2
+        colorImageView.layer.cornerRadius = (contentView.frame.height * 0.8) / 2
     }
 }

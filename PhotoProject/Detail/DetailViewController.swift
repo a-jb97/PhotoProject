@@ -7,8 +7,20 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class DetailViewController: BaseViewController {
+    struct StatisticsData {
+        var profileImageUrl: String = ""
+        var userName: String = ""
+        var uploadDate: String = ""
+        var imageUrl: String = ""
+        var width: Int = 0
+        var height: Int = 0
+        var viewsCount: Int = 0
+        var downloadCount: Int = 0
+    }
+    
     let profileImageView = {
         let imageView = UIImageView()
         
@@ -118,11 +130,19 @@ class DetailViewController: BaseViewController {
         
         return label
     }()
+    
+    var data: StatisticsData = StatisticsData()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
+        profileImageView.kf.setImage(with: URL(string: data.profileImageUrl))
+        userNameLabel.text = data.userName
+        dateLabel.text = data.uploadDate
+        photoImageView.kf.setImage(with: URL(string: data.imageUrl))
+        resolutionLabel.text = "\(data.width) X \(data.height)"
+        viewsLabel.text = "\(data.viewsCount.formatted())"
+        downloadsLabel.text = "\(data.downloadCount.formatted())"
     }
     
     override func configureHierarchy() {
