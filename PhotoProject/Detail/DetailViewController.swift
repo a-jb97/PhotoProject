@@ -10,25 +10,14 @@ import SnapKit
 import Kingfisher
 
 class DetailViewController: BaseViewController {
-    struct StatisticsData {
-        var profileImageUrl: String = ""
-        var userName: String = ""
-        var uploadDate: String = ""
-        var imageUrl: String = ""
-        var width: Int = 0
-        var height: Int = 0
-        var viewsCount: Int = 0
-        var downloadCount: Int = 0
-    }
-    
     let profileImageView = {
         let imageView = UIImageView()
         
         imageView.contentMode = .scaleAspectFill
+        imageView.backgroundColor = .lightGray
+        imageView.image = UIImage(systemName: "person.fill")
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 20
-        
-        imageView.backgroundColor = .systemBrown
         
         return imageView
     }()
@@ -37,16 +26,12 @@ class DetailViewController: BaseViewController {
         
         label.font = .systemFont(ofSize: 12)
         
-        label.text = "Jade"
-        
         return label
     }()
     let dateLabel = {
         let label = UILabel()
         
         label.font = .boldSystemFont(ofSize: 12)
-        
-        label.text = "2024년 7월 4일 게시됨"
         
         return label
     }()
@@ -62,8 +47,6 @@ class DetailViewController: BaseViewController {
         let imageView = UIImageView()
         
         imageView.contentMode = .scaleAspectFit
-        
-        imageView.backgroundColor = .systemBrown
         
         return imageView
     }()
@@ -108,8 +91,6 @@ class DetailViewController: BaseViewController {
         
         label.font = .systemFont(ofSize: 12)
         
-        label.text = "1,548,623"
-        
         return label
     }()
     
@@ -126,23 +107,11 @@ class DetailViewController: BaseViewController {
         
         label.font = .systemFont(ofSize: 12)
         
-        label.text = "388,996"
-        
         return label
     }()
-    
-    var data: StatisticsData = StatisticsData()
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        profileImageView.kf.setImage(with: URL(string: data.profileImageUrl))
-        userNameLabel.text = data.userName
-        dateLabel.text = data.uploadDate
-        photoImageView.kf.setImage(with: URL(string: data.imageUrl))
-        resolutionLabel.text = "\(data.width) X \(data.height)"
-        viewsLabel.text = "\(data.viewsCount.formatted())"
-        downloadsLabel.text = "\(data.downloadCount.formatted())"
     }
     
     override func configureHierarchy() {
@@ -172,9 +141,9 @@ class DetailViewController: BaseViewController {
         }
         
         photoImageView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(16)
+            make.top.equalTo(profileImageView.snp.bottom).offset(4)
             make.horizontalEdges.equalTo(view)
-            make.height.greaterThanOrEqualTo(200)
+            make.height.lessThanOrEqualTo(300)
         }
         
         informationLabel.snp.makeConstraints { make in

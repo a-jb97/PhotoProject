@@ -110,6 +110,8 @@ class SearchPhotoViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        navigationItem.title = "SEARCH PHOTO"
+        
         searchedPhotoCollectionView.isHidden = true
         statusLabel.isHidden = false
         
@@ -153,7 +155,7 @@ class SearchPhotoViewController: BaseViewController {
     
     override func configureLayout() {
         keywordSearchBar.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(8)
+            make.top.equalTo(view.safeAreaLayoutGuide)
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(16)
         }
         
@@ -196,13 +198,15 @@ extension SearchPhotoViewController: UISearchBarDelegate {
                 
                 self.searchedPhotoCollectionView.reloadData()
             } else {
-                self.statusLabel.text = "검색 결과가 없습니다"
+                self.statusLabel.text = "검색 결과가 없어요."
                 self.statusLabel.isHidden = false
                 self.searchedPhotoCollectionView.isHidden = true
             }
         } failure: { error in
             print(error.description)
         }
+        
+        view.endEditing(true)
     }
 }
 
@@ -231,16 +235,44 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
-        if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
-            self.page += 1
+        if collectionView == searchedPhotoCollectionView {
+            if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
+                self.page += 1
+                
+                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+                    self.searchedPhotos.append(contentsOf: value.results)
+                    self.searchedPhotoCollectionView.reloadData()
+                } failure: { error in
+                    print(error.description)
+                }
+                
+            }
+        }
+        
+        view.endEditing(true)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView == filterCollectionView {
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
-                self.searchedPhotos.append(contentsOf: value.results)
-                self.searchedPhotoCollectionView.reloadData()
+        } else {
+            let searchedData = searchedPhotos[indexPath.item]
+            let vc = DetailViewController()
+            
+            vc.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
+            vc.userNameLabel.text = searchedData.user.name
+            vc.dateLabel.text = searchedData.created_at
+            vc.photoImageView.kf.setImage(with: URL(string: searchedData.urls.raw))
+            vc.resolutionLabel.text = "\(searchedData.width) x \(searchedData.height)"
+            
+            NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { value in
+                vc.viewsLabel.text = "\(value.views.total.formatted())"
+                vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
             } failure: { error in
                 print(error.description)
             }
-
+            
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
 }
