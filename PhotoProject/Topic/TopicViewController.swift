@@ -84,6 +84,14 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TopicTableViewCell.identifier, for: indexPath) as! TopicTableViewCell
         
+        NetworkManager.shared.callRequest(api: .topic(topicID: randomTopics[indexPath.section]), type: [Topic].self) { value in
+            print(self.randomTopics[indexPath.section])
+            cell.topicPhotos = value
+            cell.topicCollectionView.reloadData()
+        } failure: { error in
+            print(error.description)
+        }
+        
         return cell
     }
 }

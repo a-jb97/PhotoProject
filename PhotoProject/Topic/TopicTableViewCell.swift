@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class TopicTableViewCell: BaseTableViewCell {
     lazy var topicCollectionView = {
@@ -20,7 +21,6 @@ class TopicTableViewCell: BaseTableViewCell {
         
         return collectionView
     }()
-    
     let collectionViewLayout = {
         let layout = UICollectionViewFlowLayout()
         
@@ -40,6 +40,8 @@ class TopicTableViewCell: BaseTableViewCell {
         return layout
     }()
     
+    var topicPhotos: [Topic] = []
+    
     override func configureHierarchy() {
         contentView.addSubview(topicCollectionView)
     }
@@ -53,13 +55,15 @@ class TopicTableViewCell: BaseTableViewCell {
 
 extension TopicTableViewCell: UICollectionViewDelegate, UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 10
+        return topicPhotos.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let item = collectionView.dequeueReusableCell(withReuseIdentifier: TopicCollectionViewCell.identifier, for: indexPath) as! TopicCollectionViewCell
         
-        
+        print("topicPhotoes : \(topicPhotos.count)")
+        item.topicImageView.kf.setImage(with: URL(string: topicPhotos[indexPath.item].urls.small))
+        item.starButton.setTitle("\(topicPhotos[indexPath.item].likes.formatted())", for: .normal)
         
         return item
     }
