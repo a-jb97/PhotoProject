@@ -102,16 +102,16 @@ class SearchPhotoViewController: BaseViewController {
     }()
     
     enum ColorFilter: String, CaseIterable {
-        case black = "블랙"
-        case white = "화이트"
-        case yellow = "옐로우"
-        case orange = "오렌지"
-        case red = "레드"
-        case purple = "퍼플"
-        case magenta = "마젠타"
-        case green = "그린"
-        case teal = "틸"
-        case blue = "블루"
+        case black = "black"
+        case white = "white"
+        case blue = "blue"
+        case yellow = "yellow"
+        case orange = "orange"
+        case red = "red"
+        case purple = "purple"
+        case magenta = "magenta"
+        case green = "green"
+        case teal = "teal"
         
         var uiColor: UIColor {
             switch self {
@@ -119,6 +119,8 @@ class SearchPhotoViewController: BaseViewController {
                     .black
             case .white:
                     .white
+            case .blue:
+                    .systemBlue
             case .yellow:
                     .yellow
             case .orange:
@@ -133,8 +135,31 @@ class SearchPhotoViewController: BaseViewController {
                     .green
             case .teal:
                     .systemTeal
+            }
+        }
+        
+        var label: String {
+            switch self {
+            case .black:
+                "블랙"
+            case .white:
+                "화이트"
             case .blue:
-                    .systemBlue
+                "블루"
+            case .yellow:
+                "옐로우"
+            case .orange:
+                "오렌지"
+            case .red:
+                "레드"
+            case .purple:
+                "퍼플"
+            case .magenta:
+                "마젠타"
+            case .green:
+                "그린"
+            case .teal:
+                "틸"
             }
         }
     }
@@ -142,6 +167,7 @@ class SearchPhotoViewController: BaseViewController {
     var total = 0
     var searchedPhotos: [SearchDetail] = []
     var keyWord = ""
+    var filter = "black_and_white"
     var sortToggle = false
     var page = 1
     
@@ -163,7 +189,7 @@ class SearchPhotoViewController: BaseViewController {
             sortButton.setTitle("관련순", for: .normal)
             self.page = 1
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: self.filter), type: Search.self) { value in
                 self.searchedPhotos = value.results
                 self.total = value.total
                 self.searchedPhotoCollectionView.reloadData()
@@ -176,7 +202,7 @@ class SearchPhotoViewController: BaseViewController {
             sortButton.setTitle("최신순", for: .normal)
             self.page = 1
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "latest", color: "blue"), type: Search.self) { value in
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "latest", color: self.filter), type: Search.self) { value in
                 self.searchedPhotos = value.results
                 self.total = value.total
                 self.searchedPhotoCollectionView.reloadData()
@@ -199,7 +225,8 @@ class SearchPhotoViewController: BaseViewController {
         
         filterCollectionView.snp.makeConstraints { make in
             make.top.equalTo(keywordSearchBar.snp.bottom).offset(8)
-            make.horizontalEdges.equalTo(view.safeAreaLayoutGuide)
+            make.leading.equalTo(view.safeAreaLayoutGuide)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(32)
             make.height.equalTo(30)
         }
         
@@ -225,7 +252,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         self.page = 1
         
-        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: "relevant", color: "black_and_white"), type: Search.self) { value in
             self.searchedPhotos = value.results
             self.total = value.total
             
@@ -262,7 +289,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             let item = collectionView.dequeueReusableCell(withReuseIdentifier: FilterCollectionViewCell.identifier, for: indexPath) as! FilterCollectionViewCell
             
             item.colorImageView.backgroundColor = ColorFilter.allCases[indexPath.item].uiColor
-            item.colorLabel.text = ColorFilter.allCases[indexPath.item].rawValue
+            item.colorLabel.text = ColorFilter.allCases[indexPath.item].label
             
             return item
         } else {
@@ -280,7 +307,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
                 self.page += 1
                 
-                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "blue"), type: Search.self) { value in
+                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "black_and_white"), type: Search.self) { value in
                     self.searchedPhotos.append(contentsOf: value.results)
                     self.searchedPhotoCollectionView.reloadData()
                 } failure: { error in
@@ -294,7 +321,18 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if collectionView == filterCollectionView {
+            self.page = 1
+            self.filter = ColorFilter.allCases[indexPath.item].rawValue
             
+            NetworkManager.shared.callRequest(api: .search(query: keywordSearchBar.text!, page: String(self.page), orderBy: sortToggle.description, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { value in
+                self.searchedPhotos = value.results
+                self.total = value.total
+                self.searchedPhotoCollectionView.reloadData()
+                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+            } failure: { error in
+                print(error.description)
+            }
+
         } else {
             let searchedData = searchedPhotos[indexPath.item]
             let vc = DetailViewController()
