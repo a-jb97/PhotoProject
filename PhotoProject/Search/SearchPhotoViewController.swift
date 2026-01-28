@@ -258,10 +258,11 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         } else {
             let searchedData = searchedPhotos[indexPath.item]
             let vc = DetailViewController()
+            let date = DateFormat.shared.makeStringToDate(searchedData.created_at)
             
             vc.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
             vc.userNameLabel.text = searchedData.user.name
-            vc.dateLabel.text = searchedData.created_at
+            vc.dateLabel.text = "\(DateFormat.shared.makeDateToString(date)) 게시됨"
             vc.photoImageView.kf.setImage(with: URL(string: searchedData.urls.raw))
             vc.resolutionLabel.text = "\(searchedData.width) x \(searchedData.height)"
             
