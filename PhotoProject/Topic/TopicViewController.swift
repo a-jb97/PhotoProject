@@ -7,6 +7,7 @@
 
 import UIKit
 import SnapKit
+import Kingfisher
 
 class TopicViewController: BaseViewController {
     let titleLabel = {
@@ -85,11 +86,32 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: TopicTableViewCell.identifier, for: indexPath) as! TopicTableViewCell
         
         NetworkManager.shared.callRequest(api: .topic(topicID: randomTopics[indexPath.section]), type: [Topic].self) { value in
-            print(self.randomTopics[indexPath.section])
             cell.topicPhotos = value
             cell.topicCollectionView.reloadData()
         } failure: { error in
             print(error.description)
+        }
+        
+        cell.selectItem = { [weak self] topic in
+            guard let self else { return }
+            
+            let vc = DetailViewController()
+            let date = DateFormat.shared.makeStringToDate(topic.created_at)
+            
+            vc.profileImageView.kf.setImage(with: URL(string: topic.user.profile_image.medium))
+            vc.userNameLabel.text = topic.user.name
+            vc.dateLabel.text = "\(DateFormat.shared.makeDateToString(date)) 게시됨"
+            vc.photoImageView.kf.setImage(with: URL(string: topic.urls.raw))
+            vc.resolutionLabel.text = "\(topic.width) x \(topic.height)"
+            
+            NetworkManager.shared.callRequest(api: .statistics(photoID: topic.id), type: Statistics.self) { value in
+                vc.viewsLabel.text = "\(value.views.total.formatted())"
+                vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
+            } failure: { error in
+                print(error.description)
+            }
+            
+            self.navigationController?.pushViewController(vc, animated: true)
         }
         
         return cell

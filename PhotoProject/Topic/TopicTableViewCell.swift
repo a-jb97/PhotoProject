@@ -41,6 +41,7 @@ class TopicTableViewCell: BaseTableViewCell {
     }()
     
     var topicPhotos: [Topic] = []
+    var selectItem: ((Topic) -> Void)?
     
     override func configureHierarchy() {
         contentView.addSubview(topicCollectionView)
@@ -61,10 +62,15 @@ extension TopicTableViewCell: UICollectionViewDelegate, UICollectionViewDataSour
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let item = collectionView.dequeueReusableCell(withReuseIdentifier: TopicCollectionViewCell.identifier, for: indexPath) as! TopicCollectionViewCell
         
-        print("topicPhotoes : \(topicPhotos.count)")
         item.topicImageView.kf.setImage(with: URL(string: topicPhotos[indexPath.item].urls.small))
         item.starButton.setTitle("\(topicPhotos[indexPath.item].likes.formatted())", for: .normal)
         
         return item
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let topicsData = topicPhotos[indexPath.item]
+        
+        selectItem?(topicsData)
     }
 }
