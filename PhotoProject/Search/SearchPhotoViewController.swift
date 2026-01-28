@@ -120,7 +120,7 @@ class SearchPhotoViewController: BaseViewController {
             case .white:
                     .white
             case .blue:
-                    .systemBlue
+                    .blue
             case .yellow:
                     .yellow
             case .orange:
@@ -291,6 +291,16 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             item.colorImageView.backgroundColor = ColorFilter.allCases[indexPath.item].uiColor
             item.colorLabel.text = ColorFilter.allCases[indexPath.item].label
             
+            if filter == ColorFilter.allCases[indexPath.item].rawValue {
+                item.backgroundColor = .systemBlue
+                item.colorLabel.textColor = .white
+                item.layer.cornerRadius = item.frame.height / 2
+            } else {
+                item.backgroundColor = .systemGray6
+                item.colorLabel.textColor = .black
+                item.layer.cornerRadius = item.frame.height / 2
+            }
+            
             return item
         } else {
             let item = collectionView.dequeueReusableCell(withReuseIdentifier: SearchedPhotoCollectionViewCell.identifier, for: indexPath) as! SearchedPhotoCollectionViewCell
@@ -323,6 +333,8 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         if collectionView == filterCollectionView {
             self.page = 1
             self.filter = ColorFilter.allCases[indexPath.item].rawValue
+            
+            collectionView.reloadData()
             
             NetworkManager.shared.callRequest(api: .search(query: keywordSearchBar.text!, page: String(self.page), orderBy: sortToggle.description, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { value in
                 self.searchedPhotos = value.results

@@ -43,8 +43,6 @@ class FilterCollectionViewCell: BaseCollectionViewCell {
     }
     
     override func configureView() {
-        contentView.backgroundColor = .systemGray6
-        contentView.layer.cornerRadius = contentView.frame.height / 2
         colorImageView.layer.cornerRadius = (contentView.frame.height * 0.8) / 2
     }
 }
