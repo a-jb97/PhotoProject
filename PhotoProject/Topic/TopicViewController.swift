@@ -44,7 +44,7 @@ class TopicViewController: BaseViewController {
     @objc private func actionRefreshControl() {
         randomTopics = shuffleTopic()
         
-        DispatchQueue.main.async {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
             self.topicTableView.refreshControl?.endRefreshing()
             self.topicTableView.reloadData()
         }
