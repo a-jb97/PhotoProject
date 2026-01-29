@@ -35,6 +35,9 @@ class TopicViewController: BaseViewController {
     
     lazy var randomTopics = shuffleTopic()
     
+    private var lastRequestTime: Date?
+    private let limitInterval: TimeInterval = 60
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -42,12 +45,20 @@ class TopicViewController: BaseViewController {
     }
     
     @objc private func actionRefreshControl() {
+        if let lastTime = lastRequestTime, Date().timeIntervalSince(lastTime) < limitInterval {
+            self.topicTableView.refreshControl?.endRefreshing()
+            
+            return
+        }
+        
         randomTopics = shuffleTopic()
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            self.topicTableView.refreshControl?.endRefreshing()
             self.topicTableView.reloadData()
+            self.topicTableView.refreshControl?.endRefreshing()
         }
+        
+        self.lastRequestTime = Date()
     }
     
     private func shuffleTopic() -> [TopicID] {
