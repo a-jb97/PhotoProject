@@ -196,6 +196,11 @@ class SearchPhotoViewController: BaseViewController {
     }
     
     @objc private func toggleSortButton() {
+        let cache = ImageCache.default
+        
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
+        
         if sort == Sorted.latest {
             sort = Sorted.relevant
             sortButton.setTitle("관련순", for: .normal)
@@ -275,6 +280,10 @@ class SearchPhotoViewController: BaseViewController {
 
 extension SearchPhotoViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let cache = ImageCache.default
+        
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
         self.page = 1
         
         NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
@@ -342,7 +351,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
                 self.page += 1
                 
-                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: "black_and_white"), type: Search.self) { value in
+                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
                     self.searchedPhotos.append(contentsOf: value.results)
                     self.searchedPhotoCollectionView.reloadData()
                 } failure: { error in
@@ -355,6 +364,11 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let cache = ImageCache.default
+        
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
+        
         if collectionView == filterCollectionView {
             self.page = 1
             self.filter = ColorFilter.allCases[indexPath.item].rawValue

@@ -63,7 +63,7 @@ extension TopicTableViewCell: UICollectionViewDelegate, UICollectionViewDataSour
         let item = collectionView.dequeueReusableCell(withReuseIdentifier: TopicCollectionViewCell.identifier, for: indexPath) as! TopicCollectionViewCell
         
         item.topicImageView.kf.setImage(with: URL(string: topicPhotos[indexPath.item].urls.small))
-        item.starButton.setTitle("\(topicPhotos[indexPath.item].likes.formatted())", for: .normal)
+        item.starButton.setTitle(" \(topicPhotos[indexPath.item].likes.formatted())", for: .normal)
         
         return item
     }
