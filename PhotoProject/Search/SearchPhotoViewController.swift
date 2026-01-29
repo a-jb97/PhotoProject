@@ -163,12 +163,25 @@ class SearchPhotoViewController: BaseViewController {
             }
         }
     }
+    enum Sorted: String {
+        case relevant = "relevant"
+        case latest = "latest"
+        
+        var bool: Bool {
+            switch self {
+            case .relevant:
+                false
+            case .latest:
+                true
+            }
+        }
+    }
     
     var total = 0
     var searchedPhotos: [SearchDetail] = []
     var keyWord = ""
     var filter = "black_and_white"
-    var sortToggle = false
+    var sort = Sorted.relevant
     var page = 1
     
     override func viewDidLoad() {
@@ -183,33 +196,45 @@ class SearchPhotoViewController: BaseViewController {
     }
     
     @objc private func toggleSortButton() {
-        sortToggle.toggle()
-        
-        if sortToggle == false {
+        if sort == Sorted.latest {
+            sort = Sorted.relevant
             sortButton.setTitle("관련순", for: .normal)
             self.page = 1
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: self.filter), type: Search.self) { value in
-                self.searchedPhotos = value.results
-                self.total = value.total
-                self.searchedPhotoCollectionView.reloadData()
-                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
+                self.actionInNetWorkManager(value: value)
+
             } failure: { error in
                 print(error.description)
             }
             
         } else {
+            sort = Sorted.latest
             sortButton.setTitle("최신순", for: .normal)
             self.page = 1
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "latest", color: self.filter), type: Search.self) { value in
-                self.searchedPhotos = value.results
-                self.total = value.total
-                self.searchedPhotoCollectionView.reloadData()
-                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
+                self.actionInNetWorkManager(value: value)
+
             } failure: { error in
                 print(error.description)
             }
+        }
+    }
+    
+    private func actionInNetWorkManager(value: Search) {
+        self.searchedPhotos = value.results
+        
+        if self.searchedPhotos.count != 0 {
+            self.statusLabel.isHidden = true
+            self.searchedPhotoCollectionView.isHidden = false
+            self.total = value.total
+            self.searchedPhotoCollectionView.reloadData()
+            self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+        } else {
+            self.statusLabel.text = "검색 결과가 없어요."
+            self.statusLabel.isHidden = false
+            self.searchedPhotoCollectionView.isHidden = true
         }
     }
     
@@ -252,7 +277,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         self.page = 1
         
-        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: "relevant", color: "black_and_white"), type: Search.self) { value in
+        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
             self.searchedPhotos = value.results
             self.total = value.total
             
@@ -260,8 +285,8 @@ extension SearchPhotoViewController: UISearchBarDelegate {
                 self.keyWord = searchBar.text!
                 self.statusLabel.isHidden = true
                 self.searchedPhotoCollectionView.isHidden = false
-                
                 self.searchedPhotoCollectionView.reloadData()
+                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
             } else {
                 self.statusLabel.text = "검색 결과가 없어요."
                 self.statusLabel.isHidden = false
@@ -317,7 +342,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
                 self.page += 1
                 
-                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: "relevant", color: "black_and_white"), type: Search.self) { value in
+                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: "black_and_white"), type: Search.self) { value in
                     self.searchedPhotos.append(contentsOf: value.results)
                     self.searchedPhotoCollectionView.reloadData()
                 } failure: { error in
@@ -336,11 +361,9 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             
             collectionView.reloadData()
             
-            NetworkManager.shared.callRequest(api: .search(query: keywordSearchBar.text!, page: String(self.page), orderBy: sortToggle.description, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { value in
-                self.searchedPhotos = value.results
-                self.total = value.total
-                self.searchedPhotoCollectionView.reloadData()
-                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+            NetworkManager.shared.callRequest(api: .search(query: self.keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { value in
+                self.actionInNetWorkManager(value: value)
+                
             } failure: { error in
                 print(error.description)
             }
