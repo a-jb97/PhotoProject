@@ -33,7 +33,24 @@ class TopicViewController: BaseViewController {
         return tableView
     }()
     
-    let randomTopics = {
+    lazy var randomTopics = shuffleTopic()
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        configureRefreshControl()
+    }
+    
+    @objc private func actionRefreshControl() {
+        randomTopics = shuffleTopic()
+        
+        DispatchQueue.main.async {
+            self.topicTableView.refreshControl?.endRefreshing()
+            self.topicTableView.reloadData()
+        }
+    }
+    
+    private func shuffleTopic() -> [TopicID] {
         let shuffledTopics = TopicID.allCases.shuffled()
         var pickTopics: [TopicID] = []
         
@@ -42,7 +59,12 @@ class TopicViewController: BaseViewController {
         }
         
         return pickTopics
-    }()
+    }
+    
+    private func configureRefreshControl() {
+        topicTableView.refreshControl = UIRefreshControl()
+        topicTableView.refreshControl?.addTarget(self, action: #selector(actionRefreshControl), for: .valueChanged)
+    }
     
     override func configureHierarchy() {
         view.addSubview(titleLabel)

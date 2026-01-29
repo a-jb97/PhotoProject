@@ -191,7 +191,6 @@ class SearchPhotoViewController: BaseViewController {
         
         searchedPhotoCollectionView.isHidden = true
         statusLabel.isHidden = false
-        
         sortButton.addTarget(self, action: #selector(toggleSortButton), for: .touchUpInside)
     }
     
