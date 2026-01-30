@@ -194,6 +194,7 @@ class SearchPhotoViewController: BaseViewController {
         sortButton.addTarget(self, action: #selector(toggleSortButton), for: .touchUpInside)
     }
     
+    // MARK: 정렬 버튼 동작
     @objc private func toggleSortButton() {
         let cache = ImageCache.default
         
