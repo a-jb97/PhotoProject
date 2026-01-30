@@ -400,11 +400,12 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { value in
                 vc.viewsLabel.text = "\(value.views.total.formatted())"
                 vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                
+                self.navigationController?.pushViewController(vc, animated: true)
+                
             } failure: { error in
-                print(error.description)
+                self.showAlert(message: error.description)
             }
-            
-            navigationController?.pushViewController(vc, animated: true)
         }
     }
 }

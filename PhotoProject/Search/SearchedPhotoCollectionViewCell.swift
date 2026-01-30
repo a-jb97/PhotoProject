@@ -20,9 +20,10 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
         return imageView
     }()
     let starButton = StarButton()
+    let likeButton = LikeButton()
     
     override func configureHierarchy() {
-        [photoImageView, starButton].forEach { contentView.addSubview($0) }
+        [photoImageView, starButton, likeButton].forEach { contentView.addSubview($0) }
     }
     
     override func configureLayout() {
@@ -34,6 +35,12 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
             make.leading.equalTo(photoImageView).offset(8)
             make.bottom.equalTo(photoImageView.snp.bottom).inset(8)
             make.height.equalTo(28)
+        }
+        
+        likeButton.snp.makeConstraints { make in
+            make.trailing.equalTo(photoImageView).inset(8)
+            make.bottom.equalTo(photoImageView).inset(8)
+            make.height.width.equalTo(28)
         }
     }
 }
