@@ -202,28 +202,32 @@ class SearchPhotoViewController: BaseViewController {
         cache.clearDiskCache()
         
         if sort == Sorted.latest {
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
+                self.actionInNetWorkManager(value: value)
+
+            } failure: { error in
+                self.sort = Sorted.latest
+                self.sortButton.setTitle("최신순", for: .normal)
+                self.showAlert(message: error.description)
+            }
+            
             sort = Sorted.relevant
             sortButton.setTitle("관련순", for: .normal)
             self.page = 1
             
+        } else {
             NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
                 self.actionInNetWorkManager(value: value)
 
             } failure: { error in
-                print(error.description)
+                self.sort = Sorted.relevant
+                self.sortButton.setTitle("관련순", for: .normal)
+                self.showAlert(message: error.description)
             }
             
-        } else {
             sort = Sorted.latest
             sortButton.setTitle("최신순", for: .normal)
             self.page = 1
-            
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
-                self.actionInNetWorkManager(value: value)
-
-            } failure: { error in
-                print(error.description)
-            }
         }
     }
     
@@ -302,7 +306,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
                 self.searchedPhotoCollectionView.isHidden = true
             }
         } failure: { error in
-            print(error.description)
+            self.showAlert(message: error.description)
         }
         
         view.endEditing(true)
@@ -355,7 +359,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
                     self.searchedPhotos.append(contentsOf: value.results)
                     self.searchedPhotoCollectionView.reloadData()
                 } failure: { error in
-                    print(error.description)
+                    self.showAlert(message: error.description)
                 }
             }
         }
@@ -379,7 +383,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
                 self.actionInNetWorkManager(value: value)
                 
             } failure: { error in
-                print(error.description)
+                self.showAlert(message: error.description)
             }
 
         } else {

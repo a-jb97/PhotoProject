@@ -12,7 +12,7 @@ final class Alert {
     
     private init() {  }
     
-    func makeArr(message: String) -> UIAlertController {
+    func makeAlert(message: String) -> UIAlertController {
         let alert = UIAlertController(title: "알림", message: message, preferredStyle: .alert)
         let okButton = UIAlertAction(title: "확인", style: .default)
         

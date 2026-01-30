@@ -28,7 +28,7 @@ final class NetworkManager {
             case .unAuthorized:
                 return "인증에 실패했습니다."
             case .forbidden:
-                return "접근 권한이 없습니다."
+                return "접근 권한이 없습니다. (한 시간에 50번까지만 호출할 수 있습니다!)"
             case .notFound:
                 return "요청한 리소스를 찾을 수 없습니다."
             case .serverError:

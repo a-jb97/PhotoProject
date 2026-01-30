@@ -32,4 +32,10 @@ class BaseViewController: UIViewController, ViewDesignProtocol {
     func dismissKeyboard() {
         view.endEditing(true)
     }
+    
+    func showAlert(message: String) {
+        let alert = Alert.shared.makeAlert(message: message)
+        
+        self.present(alert, animated: true)
+    }
 }

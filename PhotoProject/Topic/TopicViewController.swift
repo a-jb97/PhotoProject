@@ -44,6 +44,7 @@ class TopicViewController: BaseViewController {
         configureRefreshControl()
     }
     
+    // MARK: 당겨서 새로고침
     @objc private func actionRefreshControl() {
         if let lastTime = lastRequestTime, Date().timeIntervalSince(lastTime) < limitInterval {
             self.topicTableView.refreshControl?.endRefreshing()
@@ -116,7 +117,7 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
             cell.topicPhotos = value
             cell.topicCollectionView.reloadData()
         } failure: { error in
-            print(error.description)
+            self.showAlert(message: error.description)
         }
         
         cell.selectItem = { [weak self] topic in
@@ -135,7 +136,7 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
                 vc.viewsLabel.text = "\(value.views.total.formatted())"
                 vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
             } failure: { error in
-                print(error.description)
+                self.showAlert(message: error.description)
             }
             
             self.navigationController?.pushViewController(vc, animated: true)
