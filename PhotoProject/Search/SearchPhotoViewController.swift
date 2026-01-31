@@ -217,6 +217,10 @@ class SearchPhotoViewController: BaseViewController {
         cache.clearDiskCache()
         
         if sort == Sorted.latest {
+            self.page = 1
+            sort = Sorted.relevant
+            sortButton.setTitle("관련순", for: .normal)
+            
             NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
                 self.actionInNetWorkManager(value: value)
 
@@ -226,11 +230,11 @@ class SearchPhotoViewController: BaseViewController {
                 self.showAlert(message: error.description)
             }
             
-            sort = Sorted.relevant
-            sortButton.setTitle("관련순", for: .normal)
-            self.page = 1
-            
         } else {
+            self.page = 1
+            sort = Sorted.latest
+            sortButton.setTitle("최신순", for: .normal)
+            
             NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
                 self.actionInNetWorkManager(value: value)
 
@@ -239,10 +243,6 @@ class SearchPhotoViewController: BaseViewController {
                 self.sortButton.setTitle("관련순", for: .normal)
                 self.showAlert(message: error.description)
             }
-            
-            sort = Sorted.latest
-            sortButton.setTitle("최신순", for: .normal)
-            self.page = 1
         }
     }
     
