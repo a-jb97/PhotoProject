@@ -35,13 +35,7 @@ class DetailViewController: BaseViewController {
         
         return label
     }()
-    let heartButton = {
-        let button = UIButton()
-        
-        button.setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        
-        return button
-    }()
+    let likeButton = LikeButton()
     
     let photoImageView = {
         let imageView = UIImageView()
@@ -110,8 +104,31 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
+    var id = ""
+    var isLike = false
+    var detailLikeButtonAction: ((String, Bool) -> Void)?
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        likeButton.addTarget(self, action: #selector(detailLikeButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func detailLikeButtonTapped() {
+        isLike.toggle()
+        
+        if isLike == true {
+            likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+        } else {
+            likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+        }
+        
+        detailLikeButtonAction?(id, isLike)
+        print("\(id), \(isLike)")
+    }
+    
     override func configureHierarchy() {
-        [profileImageView, userNameLabel, dateLabel, heartButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { view.addSubview($0) }
+        [profileImageView, userNameLabel, dateLabel, likeButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { view.addSubview($0) }
     }
     
     override func configureLayout() {
@@ -131,9 +148,10 @@ class DetailViewController: BaseViewController {
             make.leading.equalTo(profileImageView.snp.trailing).offset(8)
         }
         
-        heartButton.snp.makeConstraints { make in
+        likeButton.snp.makeConstraints { make in
             make.centerY.equalTo(profileImageView)
             make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.height.width.equalTo(28)
         }
         
         photoImageView.snp.makeConstraints { make in

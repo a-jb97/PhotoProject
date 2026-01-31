@@ -183,6 +183,21 @@ class SearchPhotoViewController: BaseViewController {
     var filter = "black_and_white"
     var sort = Sorted.relevant
     var page = 1
+    var idIsLike: [String:Bool] = [:]
+    
+    let detailVC = DetailViewController()
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        detailVC.detailLikeButtonAction = { [weak self] id, isLike in
+            guard let self else { return }
+            
+            self.idIsLike[id] = isLike
+        }
+        
+        searchedPhotoCollectionView.reloadData()
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -235,11 +250,19 @@ class SearchPhotoViewController: BaseViewController {
         self.searchedPhotos = value.results
         
         if self.searchedPhotos.count != 0 {
+            self.idIsLike = [:]
+            
+            for photo in self.searchedPhotos {
+                self.idIsLike[photo.id] = false
+            }
+            
             self.statusLabel.isHidden = true
             self.searchedPhotoCollectionView.isHidden = false
             self.total = value.total
             self.searchedPhotoCollectionView.reloadData()
             self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
+            
+            print(self.idIsLike)
         } else {
             self.statusLabel.text = "검색 결과가 없어요."
             self.statusLabel.isHidden = false
@@ -295,6 +318,12 @@ extension SearchPhotoViewController: UISearchBarDelegate {
             self.total = value.total
             
             if self.searchedPhotos.count != 0 {
+                self.idIsLike = [:]
+                
+                for photo in self.searchedPhotos {
+                    self.idIsLike[photo.id] = false
+                }
+                
                 self.keyWord = searchBar.text!
                 self.statusLabel.isHidden = true
                 self.searchedPhotoCollectionView.isHidden = false
@@ -305,6 +334,8 @@ extension SearchPhotoViewController: UISearchBarDelegate {
                 self.statusLabel.isHidden = false
                 self.searchedPhotoCollectionView.isHidden = true
             }
+            
+            print(self.idIsLike)
         } failure: { error in
             self.showAlert(message: error.description)
         }
@@ -342,9 +373,23 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             return item
         } else {
             let item = collectionView.dequeueReusableCell(withReuseIdentifier: SearchedPhotoCollectionViewCell.identifier, for: indexPath) as! SearchedPhotoCollectionViewCell
+            let id = self.searchedPhotos[indexPath.item].id
+            
+            item.likeButtonAction = { [weak self] in
+                guard let self else { return }
+                
+                self.idIsLike[id]?.toggle()
+                self.searchedPhotoCollectionView.reloadItems(at: [indexPath])
+            }
             
             item.photoImageView.kf.setImage(with: URL(string: searchedPhotos[indexPath.item].urls.small))
             item.starButton.setTitle(" \(String(searchedPhotos[indexPath.item].likes.formatted()))", for: .normal)
+            
+            if idIsLike[id] == true {
+                item.likeButton.tintColor = .systemBlue
+            } else {
+                item.likeButton.tintColor = .white
+            }
             
             return item
         }
@@ -357,7 +402,13 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
                 
                 NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
                     self.searchedPhotos.append(contentsOf: value.results)
+                    
+                    for photo in self.searchedPhotos {
+                        self.idIsLike[photo.id] = false
+                    }
+                    
                     self.searchedPhotoCollectionView.reloadData()
+                    print(self.idIsLike)
                 } failure: { error in
                     self.showAlert(message: error.description)
                 }
@@ -388,20 +439,29 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
 
         } else {
             let searchedData = searchedPhotos[indexPath.item]
-            let vc = DetailViewController()
             let date = DateFormat.shared.makeStringToDate(searchedData.created_at)
             
-            vc.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
-            vc.userNameLabel.text = searchedData.user.name
-            vc.dateLabel.text = "\(DateFormat.shared.makeDateToString(date)) 게시됨"
-            vc.photoImageView.kf.setImage(with: URL(string: searchedData.urls.raw))
-            vc.resolutionLabel.text = "\(searchedData.width) x \(searchedData.height)"
+            detailVC.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
+            detailVC.userNameLabel.text = searchedData.user.name
+            detailVC.dateLabel.text = "\(DateFormat.shared.makeDateToString(date)) 게시됨"
+            detailVC.likeButton.tintColor = .systemBlue
+            detailVC.photoImageView.kf.setImage(with: URL(string: searchedData.urls.raw))
+            detailVC.resolutionLabel.text = "\(searchedData.width) x \(searchedData.height)"
+            
+            detailVC.id = searchedData.id
+            detailVC.isLike = idIsLike[searchedData.id]!
+            
+            if detailVC.isLike == true {
+                detailVC.likeButton.setImage(UIImage(systemName: "heart.fill"), for: .normal)
+            } else {
+                detailVC.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
+            }
             
             NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { value in
-                vc.viewsLabel.text = "\(value.views.total.formatted())"
-                vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                self.detailVC.viewsLabel.text = "\(value.views.total.formatted())"
+                self.detailVC.downloadsLabel.text = "\(value.downloads.total.formatted())"
                 
-                self.navigationController?.pushViewController(vc, animated: true)
+                self.navigationController?.pushViewController(self.detailVC, animated: true)
                 
             } failure: { error in
                 self.showAlert(message: error.description)

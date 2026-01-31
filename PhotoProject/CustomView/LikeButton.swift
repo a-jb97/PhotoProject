@@ -8,8 +8,6 @@
 import UIKit
 
 class LikeButton: UIButton {
-    var isLike = false
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
@@ -25,11 +23,6 @@ class LikeButton: UIButton {
         layer.cornerRadius = 14
         layer.backgroundColor = UIColor.white.cgColor.copy(alpha: 0.5)
         setImage(UIImage(systemName: "heart.fill"), for: .normal)
-        
-        if isLike {
-            tintColor = .systemBlue
-        } else {
-            tintColor = .white
-        }
+        tintColor = .white
     }
 }

@@ -22,6 +22,24 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
     let starButton = StarButton()
     let likeButton = LikeButton()
     
+    var likeButtonAction: (() -> Void)?
+    
+    @objc func likeButtonTapped() {
+        likeButtonAction?()
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        likeButton.addTarget(self, action: #selector(likeButtonTapped), for: .touchUpInside)
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        
+        likeButtonAction = nil
+    }
+    
     override func configureHierarchy() {
         [photoImageView, starButton, likeButton].forEach { contentView.addSubview($0) }
     }
