@@ -170,6 +170,9 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
             NetworkManager.shared.callRequest(api: .statistics(photoID: topic.id), type: Statistics.self) { value in
                 vc.viewsLabel.text = "\(value.views.total.formatted())"
                 vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                vc.viewsData = value.views.historical.values
+                vc.downloadData = value.downloads.historical.values
+                
             } failure: { error in
                 self.showAlert(message: error.description)
             }

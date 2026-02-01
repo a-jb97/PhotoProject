@@ -8,6 +8,7 @@
 import UIKit
 import SnapKit
 import Kingfisher
+import SwiftUI
 
 class DetailViewController: BaseViewController {
     let scrollView = UIScrollView()
@@ -107,6 +108,29 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
+    let chartTitleLabel = {
+        let label = UILabel()
+        
+        label.text = "차트"
+        label.font = .boldSystemFont(ofSize: 17)
+        
+        return label
+    }()
+    lazy var chartSeg = {
+        let seg = UISegmentedControl(items: ["조회", "다운로드"])
+        
+        seg.selectedSegmentIndex = 0
+        seg.addTarget(self, action: #selector(segValueChanged), for: .valueChanged)
+        
+        return seg
+    }()
+    
+    var viewsData: [ValuesDetail] = []
+    var downloadData: [ValuesDetail] = []
+    
+    @available(iOS 16, *)
+    lazy var hostingController = UIHostingController(rootView: ChartView(viewsData: viewsData))
+    
     var id = ""
     var isLike = false
     var detailLikeButtonAction: ((String, Bool) -> Void)?
@@ -117,6 +141,12 @@ class DetailViewController: BaseViewController {
         likeButton.addTarget(self, action: #selector(detailLikeButtonTapped), for: .touchUpInside)
         
         configureContentView()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        updateViewsChart(data: viewsData)
     }
     
     @objc private func detailLikeButtonTapped() {
@@ -130,6 +160,26 @@ class DetailViewController: BaseViewController {
         
         detailLikeButtonAction?(id, isLike)
         print("\(id), \(isLike)")
+    }
+    
+    @objc private func segValueChanged() {
+        let selectedSeg = chartSeg.selectedSegmentIndex
+        
+        if selectedSeg == 0 {
+            updateViewsChart(data: viewsData)
+        } else if selectedSeg == 1 {
+            updateDownloadChart(data: downloadData)
+        }
+    }
+    
+    func updateViewsChart(data: [ValuesDetail]) {
+        viewsData = data
+        hostingController.rootView = ChartView(viewsData: viewsData)
+    }
+    
+    func updateDownloadChart(data: [ValuesDetail]) {
+        downloadData = data
+        hostingController.rootView = ChartView(viewsData: downloadData)
     }
     
     override func configureHierarchy() {
@@ -151,7 +201,11 @@ class DetailViewController: BaseViewController {
     }
     
     private func configureContentView() {
-        [profileImageView, userNameLabel, dateLabel, likeButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { contentView.addSubview($0) }
+        addChild(hostingController)
+        
+        [profileImageView, userNameLabel, dateLabel, likeButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel, chartTitleLabel, chartSeg, hostingController.view].forEach { contentView.addSubview($0) }
+        
+        hostingController.didMove(toParent: self)
         
         profileImageView.snp.makeConstraints { make in
             make.top.equalTo(contentView).offset(16)
@@ -176,9 +230,9 @@ class DetailViewController: BaseViewController {
         }
         
         photoImageView.snp.makeConstraints { make in
-            make.top.equalTo(profileImageView.snp.bottom).offset(4)
+            make.top.equalTo(profileImageView.snp.bottom).offset(16)
             make.horizontalEdges.equalTo(contentView)
-            make.height.lessThanOrEqualTo(300)
+            make.height.lessThanOrEqualTo(400)
         }
         
         informationLabel.snp.makeConstraints { make in
@@ -214,7 +268,23 @@ class DetailViewController: BaseViewController {
         downloadsLabel.snp.makeConstraints { make in
             make.centerY.equalTo(downloadsTitleLabel)
             make.trailing.equalTo(contentView).inset(16)
-            make.bottom.equalTo(contentView).inset(20)
+        }
+        
+        chartTitleLabel.snp.makeConstraints { make in
+            make.top.equalTo(informationLabel.snp.bottom).offset(100)
+            make.leading.equalTo(contentView).offset(16)
+        }
+        
+        chartSeg.snp.makeConstraints { make in
+            make.top.equalTo(informationLabel.snp.bottom).offset(100)
+            make.leading.equalTo(contentView).offset(100)
+        }
+        
+        hostingController.view.snp.makeConstraints { make in
+            make.top.equalTo(chartSeg.snp.bottom).offset(16)
+            make.leading.equalTo(contentView).offset(100)
+            make.trailing.equalTo(contentView).inset(16)
+            make.bottom.equalTo(contentView).inset(16)
         }
     }
 }

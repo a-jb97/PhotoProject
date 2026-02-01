@@ -460,6 +460,8 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { value in
                 self.detailVC.viewsLabel.text = "\(value.views.total.formatted())"
                 self.detailVC.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                self.detailVC.viewsData = value.views.historical.values
+                self.detailVC.downloadData = value.downloads.historical.values
                 
                 self.navigationController?.pushViewController(self.detailVC, animated: true)
                 
