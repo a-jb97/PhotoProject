@@ -10,6 +10,9 @@ import SnapKit
 import Kingfisher
 
 class DetailViewController: BaseViewController {
+    let scrollView = UIScrollView()
+    let contentView = UIView()
+    
     let profileImageView = {
         let imageView = UIImageView()
         
@@ -112,6 +115,8 @@ class DetailViewController: BaseViewController {
         super.viewDidLoad()
         
         likeButton.addTarget(self, action: #selector(detailLikeButtonTapped), for: .touchUpInside)
+        
+        configureContentView()
     }
     
     @objc private func detailLikeButtonTapped() {
@@ -128,18 +133,34 @@ class DetailViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
-        [profileImageView, userNameLabel, dateLabel, likeButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { view.addSubview($0) }
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
     }
     
     override func configureLayout() {
+        scrollView.backgroundColor = .white
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalTo(view.safeAreaLayoutGuide)
+        }
+        
+        contentView.backgroundColor = .white
+        contentView.snp.makeConstraints { make in
+            make.width.equalTo(scrollView.snp.width)
+            make.verticalEdges.equalTo(scrollView)
+        }
+    }
+    
+    private func configureContentView() {
+        [profileImageView, userNameLabel, dateLabel, likeButton, photoImageView, informationLabel, resolutionTitleLabel, resolutionLabel, viewsTitleLabel, viewsLabel, downloadsTitleLabel, downloadsLabel].forEach { contentView.addSubview($0) }
+        
         profileImageView.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(16)
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.top.equalTo(contentView).offset(16)
+            make.leading.equalTo(contentView).offset(16)
             make.height.width.equalTo(40)
         }
         
         userNameLabel.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide).offset(18)
+            make.top.equalTo(contentView).offset(18)
             make.leading.equalTo(profileImageView.snp.trailing).offset(8)
         }
         
@@ -150,49 +171,50 @@ class DetailViewController: BaseViewController {
         
         likeButton.snp.makeConstraints { make in
             make.centerY.equalTo(profileImageView)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.trailing.equalTo(contentView).inset(16)
             make.height.width.equalTo(28)
         }
         
         photoImageView.snp.makeConstraints { make in
             make.top.equalTo(profileImageView.snp.bottom).offset(4)
-            make.horizontalEdges.equalTo(view)
+            make.horizontalEdges.equalTo(contentView)
             make.height.lessThanOrEqualTo(300)
         }
         
         informationLabel.snp.makeConstraints { make in
             make.top.equalTo(photoImageView.snp.bottom).offset(16)
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
+            make.leading.equalTo(contentView).offset(16)
         }
         
         resolutionTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(photoImageView.snp.bottom).offset(20)
-            make.leading.equalTo(view.safeAreaInsets).offset(100)
+            make.leading.equalTo(contentView).offset(100)
         }
         
         resolutionLabel.snp.makeConstraints { make in
             make.centerY.equalTo(resolutionTitleLabel)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.trailing.equalTo(contentView).inset(16)
         }
         
         viewsTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(resolutionTitleLabel.snp.bottom).offset(16)
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(100)
+            make.leading.equalTo(contentView).offset(100)
         }
         
         viewsLabel.snp.makeConstraints { make in
             make.centerY.equalTo(viewsTitleLabel)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.trailing.equalTo(contentView).inset(16)
         }
         
         downloadsTitleLabel.snp.makeConstraints { make in
             make.top.equalTo(viewsTitleLabel.snp.bottom).offset(16)
-            make.leading.equalTo(view.safeAreaLayoutGuide).offset(100)
+            make.leading.equalTo(contentView).offset(100)
         }
         
         downloadsLabel.snp.makeConstraints { make in
             make.centerY.equalTo(downloadsTitleLabel)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.trailing.equalTo(contentView).inset(16)
+            make.bottom.equalTo(contentView).inset(20)
         }
     }
 }
