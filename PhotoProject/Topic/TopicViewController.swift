@@ -34,6 +34,9 @@ class TopicViewController: BaseViewController {
     }()
     
     lazy var randomTopics = shuffleTopic()
+    var topicsPhotos: [[Topic]] = Array(repeating: [], count: 3)
+    
+    let group = DispatchGroup()
     
     private var lastRequestTime: Date?
     private let limitInterval: TimeInterval = 60
@@ -41,25 +44,9 @@ class TopicViewController: BaseViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        networking(topicIDs: randomTopics)
+        
         configureRefreshControl()
-    }
-    
-    // MARK: 당겨서 새로고침
-    @objc private func actionRefreshControl() {
-        if let lastTime = lastRequestTime, Date().timeIntervalSince(lastTime) < limitInterval {
-            self.topicTableView.refreshControl?.endRefreshing()
-            
-            return
-        }
-        
-        randomTopics = shuffleTopic()
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
-            self.topicTableView.reloadData()
-            self.topicTableView.refreshControl?.endRefreshing()
-        }
-        
-        self.lastRequestTime = Date()
     }
     
     private func shuffleTopic() -> [TopicID] {
@@ -73,9 +60,60 @@ class TopicViewController: BaseViewController {
         return pickTopics
     }
     
+    // MARK: 당겨서 새로고침
+    @objc private func actionRefreshControl() {
+        if let lastTime = lastRequestTime, Date().timeIntervalSince(lastTime) < limitInterval {
+            self.topicTableView.refreshControl?.endRefreshing()
+            
+            return
+        }
+        
+        randomTopics = shuffleTopic()
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7) {
+            self.networking(topicIDs: self.randomTopics)
+            self.topicTableView.refreshControl?.endRefreshing()
+            self.topicTableView.reloadData()
+        }
+        
+        self.lastRequestTime = Date()
+    }
+    
     private func configureRefreshControl() {
         topicTableView.refreshControl = UIRefreshControl()
         topicTableView.refreshControl?.addTarget(self, action: #selector(actionRefreshControl), for: .valueChanged)
+    }
+    
+    // MARK: 네트워크 통신
+    private func networking(topicIDs: [TopicID]) {
+        let cache = ImageCache.default
+        
+        cache.clearMemoryCache()
+        cache.clearDiskCache()
+        
+        for topicID in 0...2 {
+            self.group.enter()
+            DispatchQueue.global().async(group: group) {
+                NetworkManager.shared.callRequest(api: .topic(topicID: topicIDs[topicID]), type: [Topic].self) { value in
+                    self.topicsPhotos[topicID] = value
+                    
+                    print("\(topicID) 성공")
+                    
+                    self.group.leave()
+                } failure: { error in
+                    self.showAlert(message: error.description)
+                    
+                    print("\(topicID) 실패")
+                    
+                    self.group.leave()
+                }
+            }
+        }
+        
+        self.group.notify(queue: .main) {
+            self.topicTableView.reloadData()
+            print("END")
+        }
     }
     
     override func configureHierarchy() {
@@ -113,12 +151,8 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TopicTableViewCell.identifier, for: indexPath) as! TopicTableViewCell
         
-        NetworkManager.shared.callRequest(api: .topic(topicID: randomTopics[indexPath.section]), type: [Topic].self) { value in
-            cell.topicPhotos = value
-            cell.topicCollectionView.reloadData()
-        } failure: { error in
-            self.showAlert(message: error.description)
-        }
+        cell.topicPhotos = self.topicsPhotos[indexPath.section]
+        cell.topicCollectionView.reloadData()
         
         cell.selectItem = { [weak self] topic in
             guard let self else { return }
