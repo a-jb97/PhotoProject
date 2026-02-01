@@ -20,6 +20,12 @@ final class DateFormat {
         return dateFormat.date(from: stringDate) ?? Date()
     }
     
+    func makeStringToDateChart(_ stringDate: String) -> Date {
+        dateFormat.dateFormat = "yyyy-MM-dd"
+        
+        return dateFormat.date(from: stringDate) ?? Date()
+    }
+    
     func makeDateToString(_ date: Date) -> String {
         dateFormat.dateFormat = "yyyy년 M월 d일"
         
