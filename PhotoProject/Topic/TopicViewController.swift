@@ -36,10 +36,7 @@ class TopicViewController: BaseViewController {
     lazy var randomTopics = shuffleTopic()
     var topicsPhotos: [[Topic]] = Array(repeating: [], count: 3)
     
-    let group = DispatchGroup()
-    
     private var lastRequestTime: Date?
-    private let limitInterval: TimeInterval = 60
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,6 +59,8 @@ class TopicViewController: BaseViewController {
     
     // MARK: 당겨서 새로고침
     @objc private func actionRefreshControl() {
+        let limitInterval: TimeInterval = 60
+        
         if let lastTime = lastRequestTime, Date().timeIntervalSince(lastTime) < limitInterval {
             self.topicTableView.refreshControl?.endRefreshing()
             
@@ -91,26 +90,28 @@ class TopicViewController: BaseViewController {
         cache.clearMemoryCache()
         cache.clearDiskCache()
         
+        let group = DispatchGroup()
+        
         for topicID in 0...2 {
-            self.group.enter()
+            group.enter()
             DispatchQueue.global().async(group: group) {
                 NetworkManager.shared.callRequest(api: .topic(topicID: topicIDs[topicID]), type: [Topic].self) { value in
                     self.topicsPhotos[topicID] = value
                     
                     print("\(topicID) 성공")
                     
-                    self.group.leave()
+                    group.leave()
                 } failure: { error in
                     self.showAlert(message: error.description)
                     
                     print("\(topicID) 실패")
                     
-                    self.group.leave()
+                    group.leave()
                 }
             }
         }
         
-        self.group.notify(queue: .main) {
+        group.notify(queue: .main) {
             self.topicTableView.reloadData()
             print("END")
         }
