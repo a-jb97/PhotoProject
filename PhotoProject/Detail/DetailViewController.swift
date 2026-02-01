@@ -135,6 +135,12 @@ class DetailViewController: BaseViewController {
     var isLike = false
     var detailLikeButtonAction: ((String, Bool) -> Void)?
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        scrollView.setContentOffset(CGPoint(x: 0, y: -scrollView.adjustedContentInset.top), animated: animated)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
