@@ -27,7 +27,7 @@ struct HistorycalDetail: Decodable {
     let values: [ValuesDetail]
 }
 
-struct ValuesDetail: Decodable {
+struct ValuesDetail: Decodable, ChartDataType {
     let date: String
     let value: Int
 }

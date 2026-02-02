@@ -8,8 +8,8 @@
 import SwiftUI
 import Charts
 
-struct ChartView: View {
-    var viewsData: [ValuesDetail]
+struct ChartView<T: ChartDataType>: View {
+    var viewsData: [T]
     
     var body: some View {
         Chart {

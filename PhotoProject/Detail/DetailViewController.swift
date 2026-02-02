@@ -152,7 +152,7 @@ class DetailViewController: BaseViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        updateViewsChart(data: viewsData)
+        updateChart(data: viewsData)
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -171,27 +171,20 @@ class DetailViewController: BaseViewController {
         }
         
         detailLikeButtonAction?(id, isLike)
-        print("\(id), \(isLike)")
     }
     
     @objc private func segValueChanged() {
         let selectedSeg = chartSeg.selectedSegmentIndex
         
         if selectedSeg == 0 {
-            updateViewsChart(data: viewsData)
+            updateChart(data: viewsData)
         } else if selectedSeg == 1 {
-            updateDownloadChart(data: downloadData)
+            updateChart(data: downloadData)
         }
     }
     
-    func updateViewsChart(data: [ValuesDetail]) {
-        viewsData = data
-        hostingController.rootView = ChartView(viewsData: viewsData)
-    }
-    
-    func updateDownloadChart(data: [ValuesDetail]) {
-        downloadData = data
-        hostingController.rootView = ChartView(viewsData: downloadData)
+    func updateChart<T: ChartDataType>(data: [T]) {
+        hostingController.rootView = ChartView(viewsData: data as! [ValuesDetail])
     }
     
     override func configureHierarchy() {

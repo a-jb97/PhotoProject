@@ -311,6 +311,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
         
         cache.clearMemoryCache()
         cache.clearDiskCache()
+        
         self.page = 1
         
         NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
@@ -435,7 +436,7 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         } else {
             let searchedData = searchedPhotos[indexPath.item]
             let date = DateFormat.shared.makeStringToDate(searchedData.created_at)
-            let processor = DownsamplingImageProcessor(size: CGSize(width: 500, height: 500))
+            let processor = DownsamplingImageProcessor(size: detailVC.photoImageView.bounds.size)
             
             detailVC.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
             detailVC.userNameLabel.text = searchedData.user.name

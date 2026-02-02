@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 
 enum NetworkRouter {
-    case topic(topicID: TopicID)
+    case topic(topicID: TopicID) // 연관값
     case search(query: String, page: String, orderBy: String, color: String)
     case statistics(photoID: String)
     
