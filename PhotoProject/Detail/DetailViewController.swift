@@ -155,6 +155,12 @@ class DetailViewController: BaseViewController {
         updateViewsChart(data: viewsData)
     }
     
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        ImageCache.default.clearMemoryCache()
+    }
+    
     @objc private func detailLikeButtonTapped() {
         isLike.toggle()
         

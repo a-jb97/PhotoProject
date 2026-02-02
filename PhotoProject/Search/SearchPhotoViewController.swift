@@ -419,11 +419,6 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cache = ImageCache.default
-        
-        cache.clearMemoryCache()
-        cache.clearDiskCache()
-        
         if collectionView == filterCollectionView {
             self.page = 1
             self.filter = ColorFilter.allCases[indexPath.item].rawValue
@@ -440,12 +435,18 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
         } else {
             let searchedData = searchedPhotos[indexPath.item]
             let date = DateFormat.shared.makeStringToDate(searchedData.created_at)
+            let processor = DownsamplingImageProcessor(size: CGSize(width: 500, height: 500))
             
             detailVC.profileImageView.kf.setImage(with: URL(string: searchedData.user.profile_image.medium))
             detailVC.userNameLabel.text = searchedData.user.name
             detailVC.dateLabel.text = "\(DateFormat.shared.makeDateToString(date)) 게시됨"
             detailVC.likeButton.tintColor = .systemBlue
-            detailVC.photoImageView.kf.setImage(with: URL(string: searchedData.urls.raw))
+            detailVC.photoImageView.kf.setImage(
+                with: URL(string: searchedData.urls.raw),
+                options: [
+                    .processor(processor)
+                ]
+            )
             detailVC.resolutionLabel.text = "\(searchedData.width) x \(searchedData.height)"
             
             detailVC.id = searchedData.id
