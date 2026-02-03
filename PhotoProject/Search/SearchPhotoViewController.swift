@@ -370,7 +370,7 @@ extension SearchPhotoViewController: UISearchBarDelegate {
             throw TextValidationError.overThan10Text
         }
         
-        guard keywordSearchBar.text!.contains(try Regex("!@#$%^&*()-=+")) else {
+        guard !keywordSearchBar.text!.contains(try Regex("[!@#$%^&*()\\-=+]")) else {
             throw TextValidationError.containsSpecialCharacter
         }
         
