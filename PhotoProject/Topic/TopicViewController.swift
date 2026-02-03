@@ -145,7 +145,7 @@ class TopicViewController: BaseViewController {
     
     override func configureLayout() {
         profileButton.snp.makeConstraints { make in
-            make.top.equalTo(view.safeAreaLayoutGuide)
+            make.top.equalTo(view.safeAreaLayoutGuide).offset(-28)
             make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
             make.width.height.equalTo(40)
         }
