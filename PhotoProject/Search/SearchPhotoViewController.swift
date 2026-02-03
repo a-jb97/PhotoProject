@@ -306,6 +306,12 @@ class SearchPhotoViewController: BaseViewController {
 }
 
 extension SearchPhotoViewController: UISearchBarDelegate {
+    enum TextValidationError: Error {
+        case overThan10Text
+        case resultIsEmpty
+        case containsSpecialCharacter
+    }
+    
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         let cache = ImageCache.default
         
@@ -318,7 +324,9 @@ extension SearchPhotoViewController: UISearchBarDelegate {
             self.searchedPhotos = value.results
             self.total = value.total
             
-            if self.searchedPhotos.count != 0 {
+            do {
+                try self.validateSearchKeyword(data: self.searchedPhotos)
+                
                 self.idIsLike = [:]
                 
                 for photo in self.searchedPhotos {
@@ -329,19 +337,46 @@ extension SearchPhotoViewController: UISearchBarDelegate {
                 self.statusLabel.isHidden = true
                 self.searchedPhotoCollectionView.isHidden = false
                 self.searchedPhotoCollectionView.reloadData()
-                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(row: 0, section: 0), at: .top, animated: false)
-            } else {
+                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+                
+            } catch TextValidationError.overThan10Text {
+                self.statusLabel.text = "10자 이하만 입력할 수 있어요."
+                self.statusLabel.isHidden = false
+                self.searchedPhotoCollectionView.isHidden = true
+                
+            } catch TextValidationError.containsSpecialCharacter {
+                self.statusLabel.text = "특수문자는 입력할 수 없어요."
+                self.statusLabel.isHidden = false
+                self.searchedPhotoCollectionView.isHidden = true
+                
+            } catch TextValidationError.resultIsEmpty {
                 self.statusLabel.text = "검색 결과가 없어요."
                 self.statusLabel.isHidden = false
                 self.searchedPhotoCollectionView.isHidden = true
+                
+            } catch {
+                self.showAlert(message: "미확인 에러 발생")
             }
             
-            print(self.idIsLike)
         } failure: { error in
             self.showAlert(message: error.description)
         }
         
         view.endEditing(true)
+    }
+    
+    private func validateSearchKeyword(data: [SearchDetail]) throws {
+        guard keywordSearchBar.text!.count <= 10 else {
+            throw TextValidationError.overThan10Text
+        }
+        
+        guard keywordSearchBar.text!.contains(try Regex("!@#$%^&*()-=+")) else {
+            throw TextValidationError.containsSpecialCharacter
+        }
+        
+        guard searchedPhotos.count != 0 else {
+            throw TextValidationError.resultIsEmpty
+        }
     }
 }
 
