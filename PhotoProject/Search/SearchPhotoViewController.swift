@@ -221,13 +221,15 @@ class SearchPhotoViewController: BaseViewController {
             sort = Sorted.relevant
             sortButton.setTitle("관련순", for: .normal)
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
-                self.actionInNetWorkManager(value: value)
-
-            } failure: { error in
-                self.sort = Sorted.latest
-                self.sortButton.setTitle("최신순", for: .normal)
-                self.showAlert(message: error.description)
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { response in
+                switch response {
+                case .success(let value):
+                    self.actionInNetWorkManager(value: value)
+                case .failure(let error):
+                    self.sort = Sorted.latest
+                    self.sortButton.setTitle("최신순", for: .normal)
+                    self.showAlert(message: error.description)
+                }
             }
             
         } else {
@@ -235,13 +237,15 @@ class SearchPhotoViewController: BaseViewController {
             sort = Sorted.latest
             sortButton.setTitle("최신순", for: .normal)
             
-            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
-                self.actionInNetWorkManager(value: value)
-
-            } failure: { error in
-                self.sort = Sorted.relevant
-                self.sortButton.setTitle("관련순", for: .normal)
-                self.showAlert(message: error.description)
+            NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { response in
+                switch response {
+                case .success(let value):
+                    self.actionInNetWorkManager(value: value)
+                case .failure(let error):
+                    self.sort = Sorted.relevant
+                    self.sortButton.setTitle("관련순", for: .normal)
+                    self.showAlert(message: error.description)
+                }
             }
         }
     }
@@ -320,46 +324,48 @@ extension SearchPhotoViewController: UISearchBarDelegate {
         
         self.page = 1
         
-        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
-            self.searchedPhotos = value.results
-            self.total = value.total
-            
-            do {
-                try self.validateSearchKeyword(data: self.searchedPhotos)
+        NetworkManager.shared.callRequest(api: .search(query: searchBar.text!, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { response in
+            switch response {
+            case .success(let value):
+                self.searchedPhotos = value.results
+                self.total = value.total
                 
-                self.idIsLike = [:]
-                
-                for photo in self.searchedPhotos {
-                    self.idIsLike[photo.id] = false
+                do {
+                    try self.validateSearchKeyword(data: self.searchedPhotos)
+                    
+                    self.idIsLike = [:]
+                    
+                    for photo in self.searchedPhotos {
+                        self.idIsLike[photo.id] = false
+                    }
+                    
+                    self.keyWord = searchBar.text!
+                    self.statusLabel.isHidden = true
+                    self.searchedPhotoCollectionView.isHidden = false
+                    self.searchedPhotoCollectionView.reloadData()
+                    self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+                    
+                } catch TextValidationError.overThan10Text {
+                    self.statusLabel.text = "10자 이하만 입력할 수 있어요."
+                    self.statusLabel.isHidden = false
+                    self.searchedPhotoCollectionView.isHidden = true
+                    
+                } catch TextValidationError.containsSpecialCharacter {
+                    self.statusLabel.text = "특수문자는 입력할 수 없어요."
+                    self.statusLabel.isHidden = false
+                    self.searchedPhotoCollectionView.isHidden = true
+                    
+                } catch TextValidationError.resultIsEmpty {
+                    self.statusLabel.text = "검색 결과가 없어요."
+                    self.statusLabel.isHidden = false
+                    self.searchedPhotoCollectionView.isHidden = true
+                    
+                } catch {
+                    self.showAlert(message: "미확인 에러 발생")
                 }
-                
-                self.keyWord = searchBar.text!
-                self.statusLabel.isHidden = true
-                self.searchedPhotoCollectionView.isHidden = false
-                self.searchedPhotoCollectionView.reloadData()
-                self.searchedPhotoCollectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
-                
-            } catch TextValidationError.overThan10Text {
-                self.statusLabel.text = "10자 이하만 입력할 수 있어요."
-                self.statusLabel.isHidden = false
-                self.searchedPhotoCollectionView.isHidden = true
-                
-            } catch TextValidationError.containsSpecialCharacter {
-                self.statusLabel.text = "특수문자는 입력할 수 없어요."
-                self.statusLabel.isHidden = false
-                self.searchedPhotoCollectionView.isHidden = true
-                
-            } catch TextValidationError.resultIsEmpty {
-                self.statusLabel.text = "검색 결과가 없어요."
-                self.statusLabel.isHidden = false
-                self.searchedPhotoCollectionView.isHidden = true
-                
-            } catch {
-                self.showAlert(message: "미확인 에러 발생")
+            case .failure(let error):
+                self.showAlert(message: error.description)
             }
-            
-        } failure: { error in
-            self.showAlert(message: error.description)
         }
         
         view.endEditing(true)
@@ -436,17 +442,21 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             if indexPath.item == (searchedPhotos.count - 1) && searchedPhotos.count <= self.total {
                 self.page += 1
                 
-                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { value in
-                    self.searchedPhotos.append(contentsOf: value.results)
+                NetworkManager.shared.callRequest(api: .search(query: keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: self.filter), type: Search.self) { response in
                     
-                    for photo in self.searchedPhotos {
-                        self.idIsLike[photo.id] = false
+                    switch response {
+                    case .success(let value):
+                        self.searchedPhotos.append(contentsOf: value.results)
+                        
+                        for photo in self.searchedPhotos {
+                            self.idIsLike[photo.id] = false
+                        }
+                        
+                        self.searchedPhotoCollectionView.reloadData()
+                        print(self.idIsLike)
+                    case .failure(let error):
+                        self.showAlert(message: error.description)
                     }
-                    
-                    self.searchedPhotoCollectionView.reloadData()
-                    print(self.idIsLike)
-                } failure: { error in
-                    self.showAlert(message: error.description)
                 }
             }
         }
@@ -461,11 +471,13 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
             
             collectionView.reloadData()
             
-            NetworkManager.shared.callRequest(api: .search(query: self.keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { value in
-                self.actionInNetWorkManager(value: value)
-                
-            } failure: { error in
-                self.showAlert(message: error.description)
+            NetworkManager.shared.callRequest(api: .search(query: self.keyWord, page: String(self.page), orderBy: self.sort.rawValue, color: ColorFilter.allCases[indexPath.item].rawValue), type: Search.self) { response in
+                switch response {
+                case .success(let value):
+                    self.actionInNetWorkManager(value: value)
+                case .failure(let error):
+                    self.showAlert(message: error.description)
+                }
             }
 
         } else {
@@ -494,16 +506,18 @@ extension SearchPhotoViewController: UICollectionViewDelegate, UICollectionViewD
                 detailVC.likeButton.setImage(UIImage(systemName: "heart"), for: .normal)
             }
             
-            NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { value in
-                self.detailVC.viewsLabel.text = "\(value.views.total.formatted())"
-                self.detailVC.downloadsLabel.text = "\(value.downloads.total.formatted())"
-                self.detailVC.viewsData = value.views.historical.values
-                self.detailVC.downloadData = value.downloads.historical.values
-                
-                self.navigationController?.pushViewController(self.detailVC, animated: true)
-                
-            } failure: { error in
-                self.showAlert(message: error.description)
+            NetworkManager.shared.callRequest(api: .statistics(photoID: searchedData.id), type: Statistics.self) { response in
+                switch response {
+                case .success(let value):
+                    self.detailVC.viewsLabel.text = "\(value.views.total.formatted())"
+                    self.detailVC.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                    self.detailVC.viewsData = value.views.historical.values
+                    self.detailVC.downloadData = value.downloads.historical.values
+                    
+                    self.navigationController?.pushViewController(self.detailVC, animated: true)
+                case .failure(let error):
+                    self.showAlert(message: error.description)
+                }
             }
         }
     }

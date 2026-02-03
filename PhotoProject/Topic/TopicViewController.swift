@@ -115,18 +115,21 @@ class TopicViewController: BaseViewController {
         for topicID in 0...2 {
             group.enter()
             DispatchQueue.global().async(group: group) {
-                NetworkManager.shared.callRequest(api: .topic(topicID: topicIDs[topicID]), type: [Topic].self) { value in
-                    self.topicsPhotos[topicID] = value
-                    
-                    print("\(topicID) 성공")
-                    
-                    group.leave()
-                } failure: { error in
-                    self.showAlert(message: error.description)
-                    
-                    print("\(topicID) 실패")
-                    
-                    group.leave()
+                NetworkManager.shared.callRequest(api: .topic(topicID: topicIDs[topicID]), type: [Topic].self) { response in
+                    switch response {
+                    case .success(let value):
+                        self.topicsPhotos[topicID] = value
+                        
+                        print("\(topicID) 성공")
+                        
+                        group.leave()
+                    case .failure(let error):
+                        self.showAlert(message: error.description)
+                        
+                        print("\(topicID) 실패")
+                        
+                        group.leave()
+                    }
                 }
             }
         }
@@ -194,14 +197,16 @@ extension TopicViewController: UITableViewDelegate, UITableViewDataSource {
             vc.photoImageView.kf.setImage(with: URL(string: topic.urls.raw))
             vc.resolutionLabel.text = "\(topic.width) x \(topic.height)"
             
-            NetworkManager.shared.callRequest(api: .statistics(photoID: topic.id), type: Statistics.self) { value in
-                vc.viewsLabel.text = "\(value.views.total.formatted())"
-                vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
-                vc.viewsData = value.views.historical.values
-                vc.downloadData = value.downloads.historical.values
-                
-            } failure: { error in
-                self.showAlert(message: error.description)
+            NetworkManager.shared.callRequest(api: .statistics(photoID: topic.id), type: Statistics.self) { response in
+                switch response {
+                case .success(let value):
+                    vc.viewsLabel.text = "\(value.views.total.formatted())"
+                    vc.downloadsLabel.text = "\(value.downloads.total.formatted())"
+                    vc.viewsData = value.views.historical.values
+                    vc.downloadData = value.downloads.historical.values
+                case .failure(let error):
+                    self.showAlert(message: error.description)
+                }
             }
             
             self.navigationController?.pushViewController(vc, animated: true)
