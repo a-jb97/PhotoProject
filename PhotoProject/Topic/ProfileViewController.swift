@@ -9,6 +9,26 @@ import UIKit
 import SnapKit
 
 final class ProfileViewController: BaseViewController {
+    enum ValidationError: Error, LocalizedError {
+        case isNotNumber
+        case notRangeMonth
+        case notRangeDay
+        case containWhiteSpace
+        
+        var errorDescription: String? {
+            switch self {
+            case .isNotNumber:
+                return "숫자만 입력할 수 있습니다."
+            case .notRangeMonth:
+                return "1 ~ 12 사이의 숫자만 입력할 수 있습니다."
+            case .notRangeDay:
+                return "1 ~ 31 사이의 숫자만 입력할 수 있습니다."
+            case .containWhiteSpace:
+                return "공백을 포함할 수 없습니다."
+            }
+        }
+    }
+    
     private let yearTextField = ProfileTextField(placeHolder: "연도를 입력해주세요")
     private let monthTextField = ProfileTextField(placeHolder: "월을 입력해주세요")
     private let dayTextField = ProfileTextField(placeHolder: "일을 입력해주세요")
