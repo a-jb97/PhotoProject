@@ -10,7 +10,7 @@ import SnapKit
 import Kingfisher
 
 class SearchPhotoViewController: BaseViewController {
-    lazy var keywordSearchBar = {
+    private lazy var keywordSearchBar = {
         let searchBar = UISearchBar()
         
         searchBar.delegate = self
@@ -18,7 +18,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return searchBar
     }()
-    lazy var filterCollectionView = {
+    private lazy var filterCollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: filterCollectionViewLayout)
         
         collectionView.delegate = self
@@ -29,7 +29,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return collectionView
     }()
-    let sortButton = {
+    private let sortButton = {
         let button = UIButton()
         
         button.setImage(UIImage(systemName: "line.3.horizontal.decrease"), for: .normal)
@@ -46,7 +46,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return button
     }()
-    let statusLabel = {
+    private let statusLabel = {
         let label = UILabel()
         
         label.text = "사진을 검색해보세요."
@@ -54,7 +54,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return label
     }()
-    lazy var searchedPhotoCollectionView = {
+    private lazy var searchedPhotoCollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: searchedPhotoCollectionViewLayout)
         
         collectionView.delegate = self
@@ -64,7 +64,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return collectionView
     }()
-    let filterCollectionViewLayout = {
+    private let filterCollectionViewLayout = {
         let layout = UICollectionViewFlowLayout()
         
         let inset: CGFloat = 4
@@ -82,7 +82,7 @@ class SearchPhotoViewController: BaseViewController {
         
         return layout
     }()
-    let searchedPhotoCollectionViewLayout = {
+    private let searchedPhotoCollectionViewLayout = {
         let layout = UICollectionViewFlowLayout()
         
         let inset: CGFloat = 2
@@ -185,7 +185,7 @@ class SearchPhotoViewController: BaseViewController {
     var page = 1
     var idIsLike: [String:Bool] = [:]
     
-    let detailVC = DetailViewController()
+    private let detailVC = DetailViewController()
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

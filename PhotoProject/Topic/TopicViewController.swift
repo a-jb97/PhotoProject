@@ -10,7 +10,7 @@ import SnapKit
 import Kingfisher
 
 class TopicViewController: BaseViewController {
-    let profileButton = {
+    private let profileButton = {
         let button = UIButton()
         
         button.setImage(UIImage(systemName: "person.fill"), for: .normal)
@@ -22,7 +22,7 @@ class TopicViewController: BaseViewController {
         return button
     }()
     
-    let titleLabel = {
+    private let titleLabel = {
         let label = UILabel()
         
         label.text = "OUR TOPIC"
@@ -31,7 +31,7 @@ class TopicViewController: BaseViewController {
         return label
     }()
     
-    lazy var topicTableView = {
+    private lazy var topicTableView = {
         let tableView = UITableView()
         let screenHeight = UIScreen.main.bounds.height
         

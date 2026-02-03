@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileTextField: UITextField {
+final class ProfileTextField: UITextField {
     override init(frame: CGRect) {
         super.init(frame: frame)
     }

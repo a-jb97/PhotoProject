@@ -21,7 +21,7 @@ class TopicTableViewCell: BaseTableViewCell {
         
         return collectionView
     }()
-    let collectionViewLayout = {
+    private let collectionViewLayout = {
         let layout = UICollectionViewFlowLayout()
         
         let inset: CGFloat = 16

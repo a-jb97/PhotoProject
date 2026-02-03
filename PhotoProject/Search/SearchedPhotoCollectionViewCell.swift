@@ -24,7 +24,7 @@ class SearchedPhotoCollectionViewCell: BaseCollectionViewCell {
     
     var likeButtonAction: (() -> Void)?
     
-    @objc func likeButtonTapped() {
+    @objc private func likeButtonTapped() {
         likeButtonAction?()
     }
     

@@ -10,9 +10,9 @@ import SnapKit
 import Kingfisher
 import SwiftUI
 
-class DetailViewController: BaseViewController {
-    let scrollView = UIScrollView()
-    let contentView = UIView()
+final class DetailViewController: BaseViewController {
+    private let scrollView = UIScrollView()
+    private let contentView = UIView()
     
     let profileImageView = {
         let imageView = UIImageView()
@@ -49,7 +49,7 @@ class DetailViewController: BaseViewController {
         return imageView
     }()
     
-    let informationLabel = {
+    private let informationLabel = {
         let label = UILabel()
         
         label.text = "정보"
@@ -58,7 +58,7 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
-    let resolutionTitleLabel = {
+    private let resolutionTitleLabel = {
         let label = UILabel()
         
         label.text = "크기"
@@ -76,7 +76,7 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
-    let viewsTitleLabel = {
+    private let viewsTitleLabel = {
         let label = UILabel()
         
         label.text = "조회수"
@@ -92,7 +92,7 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
-    let downloadsTitleLabel = {
+    private let downloadsTitleLabel = {
         let label = UILabel()
         
         label.text = "다운로드"
@@ -108,7 +108,7 @@ class DetailViewController: BaseViewController {
         return label
     }()
     
-    let chartTitleLabel = {
+    private let chartTitleLabel = {
         let label = UILabel()
         
         label.text = "차트"
@@ -116,7 +116,7 @@ class DetailViewController: BaseViewController {
         
         return label
     }()
-    lazy var chartSeg = {
+    private lazy var chartSeg = {
         let seg = UISegmentedControl(items: ["조회", "다운로드"])
         
         seg.selectedSegmentIndex = 0
@@ -183,7 +183,7 @@ class DetailViewController: BaseViewController {
         }
     }
     
-    func updateChart<T: ChartDataType>(data: [T]) {
+    private func updateChart<T: ChartDataType>(data: [T]) {
         hostingController.rootView = ChartView(viewsData: data as! [ValuesDetail])
     }
     
