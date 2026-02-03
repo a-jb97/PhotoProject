@@ -10,6 +10,18 @@ import SnapKit
 import Kingfisher
 
 class TopicViewController: BaseViewController {
+    let profileButton = {
+        let button = UIButton()
+        
+        button.setImage(UIImage(systemName: "person.fill"), for: .normal)
+        button.tintColor = .white
+        button.backgroundColor = .systemBlue
+        button.clipsToBounds = true
+        button.layer.cornerRadius = 20
+        
+        return button
+    }()
+    
     let titleLabel = {
         let label = UILabel()
         
@@ -44,6 +56,14 @@ class TopicViewController: BaseViewController {
         networking(topicIDs: randomTopics)
         
         configureRefreshControl()
+        
+        profileButton.addTarget(self, action: #selector(profileButtonTapped), for: .touchUpInside)
+    }
+    
+    @objc private func profileButtonTapped() {
+        let vc = ProfileViewController()
+        
+        navigationController?.pushViewController(vc, animated: true)
     }
     
     private func shuffleTopic() -> [TopicID] {
@@ -118,13 +138,20 @@ class TopicViewController: BaseViewController {
     }
     
     override func configureHierarchy() {
+        view.addSubview(profileButton)
         view.addSubview(titleLabel)
         view.addSubview(topicTableView)
     }
     
     override func configureLayout() {
-        titleLabel.snp.makeConstraints { make in
+        profileButton.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide)
+            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.width.height.equalTo(40)
+        }
+        
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(profileButton.snp.bottom)
             make.leading.equalTo(view.safeAreaLayoutGuide).offset(16)
         }
         
